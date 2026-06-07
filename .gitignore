@@ -8,7 +8,7 @@ job_cache.json
 # results.json IS committed — it powers the Vercel dashboard
 # (it contains job data but no personal credentials)
 
-# Python
+# Python bytecode
 __pycache__/
 *.py[cod]
 *.egg-info/

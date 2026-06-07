@@ -1,0 +1,14 @@
+# Tell Vercel to ignore all Python — this is a static site served from public/
+*.py
+requirements.txt
+sources/
+dashboard.py
+scan.py
+eval.py
+export.py
+CLAUDE.md
+config*.yml
+cv.md
+pipeline.md
+scan_history.tsv
+job_cache.json

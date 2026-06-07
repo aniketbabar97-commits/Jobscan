@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 PIPELINE_FILE = "pipeline.md"
-OUTPUT_FILE = "results.json"
+OUTPUT_FILE = "public/results.json"
 
 
 def parse_jobs(content: str) -> list:
@@ -83,6 +83,7 @@ def main():
         "jobs": sorted(jobs, key=lambda j: (j["score"] or -1), reverse=True),
     }
 
+    Path("public").mkdir(exist_ok=True)
     Path(OUTPUT_FILE).write_text(json.dumps(output, ensure_ascii=False, indent=2))
     print(f"Exported {len(jobs)} jobs → {OUTPUT_FILE}")
     print(f"  ✓ Yes: {len(yes_jobs)}  ⏳ Pending: {len(pending_jobs)}  ✗ No: {len(no_jobs)}")
