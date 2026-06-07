@@ -14,9 +14,11 @@ pip install -r requirements.txt
 ## Daily Workflow
 
 ```
-Step 1: python scan.py           — fetch + filter jobs (free, no AI tokens)
-Step 2: python eval.py           — score pending jobs with Groq LLM (free)
-Step 3: streamlit run dashboard.py  — visual review in browser
+Step 1: python scan.py     — fetch + filter jobs (free, no AI tokens)
+Step 2: python eval.py     — score pending jobs with Groq LLM (free)
+Step 3: python export.py   — write results.json for the web dashboard
+Step 4: git add results.json && git commit -m "Update results" && git push
+         → Vercel auto-deploys in ~30 seconds, dashboard refreshes
 ```
 
 ## Commands
@@ -38,30 +40,34 @@ python eval.py --limit 20     # evaluate only first 20
 Scores each pending job against cv.md using Groq (llama-3.3-70b-versatile, free).
 Updates pipeline.md in-place with scores and Yes/No decisions.
 
-### /dashboard
+### /export
+```bash
+python export.py
+```
+Converts `pipeline.md` → `results.json`.  
+Then push: `git add results.json && git commit -m "Update results" && git push`  
+Vercel auto-deploys in ~30 seconds.
+
+### /dashboard (local only)
 ```bash
 streamlit run dashboard.py
 ```
-Opens the web dashboard at http://localhost:8501.
-- Visual job cards color-coded by fit score
-- One-click Scan and Evaluate buttons
-- Tabs: Good Fits / Pending / No Fits / All
-- Auto-refresh toggle (30s)
-- Filter by source and remote
+Opens full interactive dashboard at http://localhost:8501 with one-click Scan + Evaluate buttons.
 
-**To share the dashboard publicly:**
+### Vercel Deployment (shareable public URL)
 
-Option A — ngrok (instant, temporary URL):
+1. Go to [vercel.com](https://vercel.com) → **Add New Project**
+2. Import the `aniketbabar97-commits/Jobscan` GitHub repo
+3. Leave all settings as default (Framework: Other, Root: `/`)
+4. Click **Deploy**
+5. Your dashboard is live at `https://jobscan-xxx.vercel.app`
+
+After every scan+eval:
 ```bash
-pip install pyngrok
-ngrok http 8501
-# Copy the https://xxxx.ngrok.io URL and share it
+python export.py
+git add results.json && git commit -m "Update results" && git push
+# Vercel redeploys automatically in ~30s
 ```
-
-Option B — Streamlit Community Cloud (permanent free URL):
-1. Push this repo to GitHub (public or private)
-2. Go to share.streamlit.io
-3. Deploy `dashboard.py` — get a permanent shareable link
 
 ## Files
 

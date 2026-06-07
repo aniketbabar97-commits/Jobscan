@@ -5,6 +5,9 @@ pipeline.md
 scan_history.tsv
 job_cache.json
 
+# results.json IS committed — it powers the Vercel dashboard
+# (it contains job data but no personal credentials)
+
 # Python
 __pycache__/
 *.py[cod]
