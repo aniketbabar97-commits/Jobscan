@@ -1,0 +1,172 @@
+# ================================================================
+# Jobscan Germany — Configuration Template
+# Copy this file to config.yml and fill in your details.
+# config.yml is gitignored — never commit your credentials.
+# ================================================================
+
+# ── API Keys ─────────────────────────────────────────────────────
+adzuna:
+  app_id: ""    # Free tier at developer.adzuna.com
+  app_key: ""   # ~250 API calls/day included
+
+anthropic:
+  api_key: ""   # Or set ANTHROPIC_API_KEY environment variable
+  # Recommended models (cheapest first):
+  #   claude-haiku-4-5-20251001  — fast, cheap (~$0.001/job eval), good enough
+  #   claude-sonnet-4-6          — smarter, ~10x more expensive, better reasoning
+  model: "claude-haiku-4-5-20251001"
+
+# ── Scan Settings ────────────────────────────────────────────────
+max_age_days: 5       # Ignore jobs posted more than N days ago
+score_threshold: 3.5  # Minimum score (0-5) to mark as "yes" fit
+
+# ── Filters ──────────────────────────────────────────────────────
+filters:
+
+  # Job title MUST contain at least one of these words to pass.
+  # Adjust to your target roles.
+  keywords:
+    require_one:
+      - engineer
+      - developer
+      - programmer
+      - architect
+      - scientist
+      - analyst
+      - platform
+      - data
+      - devops
+      - sre
+
+  # Block jobs with these seniority terms in the title.
+  # Remove terms for levels you're willing to apply to.
+  seniority:
+    block:
+      - "senior"
+      - "sr. "
+      - "sr "
+      - "lead "
+      - "principal"
+      - "staff "
+      - "director"
+      - "manager"
+      - "head of"
+      - "vp "
+      - "vice president"
+      - "chief"
+
+  # Block jobs in these technology domains (title-based).
+  domain:
+    block:
+      - "frontend"
+      - "front-end"
+      - "front end"
+      - "ios "
+      - "android "
+      - "mobile developer"
+      - "embedded "
+      - "salesforce"
+      - "sap "
+      - "qa engineer"
+      - "test engineer"
+      - "quality assurance"
+
+  # Location filtering.
+  # A job passes if:
+  #   - It is flagged remote by the source, OR
+  #   - Its location string contains any "allow" term, OR
+  #   - Its location is empty/unknown
+  # A job is blocked if its location string contains any "block" term
+  # (block takes precedence over allow).
+  location:
+    allow:
+      - germany
+      - deutschland
+      - berlin
+      - munich
+      - münchen
+      - hamburg
+      - frankfurt
+      - cologne
+      - köln
+      - düsseldorf
+      - stuttgart
+      - dortmund
+      - remote
+      - anywhere
+      - worldwide
+      - europe
+      - eu
+      - european
+    block:
+      - "us only"
+      - "uk only"
+      - "canada only"
+      - "australia only"
+      - "india only"
+      - "new york"
+      - "san francisco"
+      - "los angeles"
+      - "austin, tx"
+
+  # Jobs are auto-rejected if the description contains these technologies
+  # and you don't want to work with them. Leave empty to disable.
+  tech_stack:
+    negative: []
+    # Examples: ["cobol", "perl", "salesforce apex", "as400"]
+
+# ── Search Queries ────────────────────────────────────────────────
+
+# Adzuna Germany queries (requires free API key above).
+# Each entry is a separate API search with its own result set.
+adzuna_queries:
+  - query: "software engineer"
+    location: "germany"
+  - query: "backend developer"
+    location: "germany"
+  - query: "python developer"
+    location: "germany"
+  - query: "data engineer"
+    location: "germany"
+  - query: "software engineer remote"
+    location: ""
+  - query: "backend developer remote"
+    location: ""
+
+# Arbeitnow queries (Germany/Europe focused, no API key needed).
+arbeitnow_queries:
+  - "software engineer"
+  - "backend developer"
+  - "python developer"
+  - "data engineer"
+  - "full stack developer"
+  - "software developer"
+  - "machine learning engineer"
+
+# RemoteOK tag filters (global remote jobs, no key needed).
+# Only jobs tagged with at least one of these will be included.
+# Full list at https://remoteok.com/tags
+remote_tags:
+  - python
+  - backend
+  - golang
+  - rust
+  - java
+  - scala
+  - typescript
+  - data
+  - machine-learning
+  - devops
+
+# Remotive job categories (global remote, no key needed).
+# Options: software-dev, data, devops-sysadmin, product, design, etc.
+remotive_categories:
+  - software-dev
+  - data
+  - devops-sysadmin
+
+# WeWorkRemotely RSS feeds (global remote, no key needed).
+# Options: programming, devops, data
+wwr_categories:
+  - programming
+  - data
