@@ -35,23 +35,56 @@ Step 4: git add public/results.json && git commit -m "Update results" && git pus
 
 ---
 
-### Apply to a Job (when you find a good one)
+### Quick Auto-Pipeline (one command for everything)
 
 ```bash
-# 1. Generate tailored application materials
+# URL → score + full A-G report + tailored HTML resume + tracker entry
+python auto.py "https://jobs.example.com/job/123"
+
+# With known title/company:
+python auto.py --url "https://..." --title "SAP Hybris Developer" --company "Valtech"
+
+# Force full report even if score is below threshold:
+python auto.py --url "https://..." --force
+```
+
+What it does automatically:
+1. Fetches the job description
+2. Scores it (0–5) against your CV
+3. If score ≥ 3.5: generates full A-G deep report + tailored HTML resume
+4. Adds to tracker as "Evaluated"
+5. Tells you exactly what to do next
+
+**After auto.py:**
+- Open `reports/NNN-company-date.md` — read the A-G analysis
+- Open `output/company-date.html` in browser → Print → Save as PDF
+- Apply on the company's website using the materials
+- Run: `python tracker.py update "https://..." Applied`
+
+---
+
+### Generate Just the HTML Resume
+
+```bash
+python resume.py "https://jobs.example.com/job/123" --title "SAP Hybris Dev" --company "Valtech"
+# Saves to output/company-date.html
+# Open in browser → File → Print → Save as PDF (A4, Minimum margins)
+```
+
+---
+
+### Generate Just the Application Materials (cover letter etc.)
+
+```bash
+# 1. Generate cover letter, LinkedIn messages, form answers
 python apply.py "https://jobs.example.com/job/123"
 
 # With known title/company (skips web fetch):
 python apply.py --url "https://..." --title "SAP Hybris Developer" --company "Valtech"
 
-# 2. Open the generated file (shown in output), review and edit it
-# File is in: applications/{company}-{date}/materials.md
-# Contains: ATS keywords, tailored summary, bullet points,
-#           cover letter, LinkedIn messages, common form answers
+# 2. Open applications/{company}-{date}/materials.md and copy-paste into the application form
 
-# 3. Apply on the company website, copy-pasting from materials.md
-
-# 4. Mark yourself as Applied
+# 3. Mark yourself as Applied
 python tracker.py update "https://..." Applied
 ```
 
@@ -154,6 +187,22 @@ python export.py
 Converts `pipeline.md` → `public/results.json` (includes application tracker stats).
 Then push: `git add public/results.json && git commit -m "Update results" && git push`
 
+### /auto
+```bash
+python auto.py <job_url>
+python auto.py --url <url> --title "SAP Hybris Dev" --company "Valtech"
+python auto.py --url <url> --force     # full report regardless of score
+```
+Single-command pipeline: fetch → score → deep report → HTML resume → tracker.
+Use this for any interesting job you find. Output goes to `reports/` and `output/`.
+
+### /resume
+```bash
+python resume.py <job_url> --title "SAP Hybris Dev" --company "Valtech"
+```
+Generates a tailored HTML resume. Open in browser → File → Print → Save as PDF.
+Saves to `output/{company}-{date}.html`.
+
 ### /apply
 ```bash
 python apply.py <job_url>
@@ -190,7 +239,8 @@ Opens full interactive dashboard at http://localhost:8501 with one-click Scan + 
 | `job_cache.json` | Cached descriptions (gitignored) |
 | `applications.tsv` | Application tracker (gitignored) |
 | `applications/` | Tailored materials per job (gitignored) |
-| `reports/` | Deep evaluation reports (gitignored) |
+| `reports/` | Deep A-G evaluation reports (gitignored) |
+| `output/` | Tailored HTML resumes (gitignored) |
 | `public/results.json` | Dashboard data — tracked in git |
 
 ---

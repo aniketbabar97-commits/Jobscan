@@ -148,23 +148,34 @@ One sentence summary.
 What archetype is this role? (SAP specialist / Java generalist / SAP consulting / DevOps / other)
 How well does the core tech stack align with Kranti's skills?
 
-## B — Strengths
-Top 3 direct matches between JD requirements and Kranti's CV. Cite specific evidence.
-- **[strength 1]**: [JD requirement] ↔ [Kranti's evidence]
-- **[strength 2]**: ...
-- **[strength 3]**: ...
+## B — Requirements Match
 
-## C — Gaps
-Any hard requirements Kranti doesn't clearly cover? Be honest but constructive.
-For each gap: is it a hard blocker or a nice-to-have? How can she address it?
+| Requirement (from JD) | Kranti's Evidence (from CV) | Match |
+|---|---|---|
+| [requirement 1] | [evidence or "Not found"] | ✓ Strong / ~ Partial / ✗ Gap |
+| [requirement 2] | ... | ... |
+| [requirement 3] | ... | ... |
+| [requirement 4] | ... | ... |
+| [requirement 5] | ... | ... |
 
-## D — Positioning Strategy
+List at least 5 key requirements from the JD. Be honest about gaps.
+
+## C — Positioning Strategy
 In 2–3 sentences: the angle Kranti should lead with for this specific role.
 What makes her stand out vs. a typical applicant?
+What framing should she use in her cover letter opening?
 
-## E — Red Flags
+## D — Compensation & Market
+Based on the JD (if salary mentioned) and Germany market rates for this role/seniority:
+- Estimated range for this role in Germany: €X–€Y gross/year
+- Is the role above / at / below market for Kranti's level?
+- Any red flags (equity-only, unpaid trial, vague comp)?
+If salary not mentioned, estimate from role/company size/location.
+
+## E — Red Flags & Personalisation
 Any ghost job signals, vague JD, unrealistic requirements, seniority mismatch, or location concerns?
-If none, say "No significant red flags."
+Also: 2 specific LinkedIn outreach hooks for this company/role.
+If no red flags: "No significant red flags."
 
 ## F — Interview STAR Stories
 2 stories from Kranti's experience that directly address key JD requirements.
