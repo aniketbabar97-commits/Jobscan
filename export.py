@@ -46,16 +46,19 @@ def parse_jobs(content: str) -> list:
             if mm:
                 source, location = mm.group(1).strip(), mm.group(2).strip()
 
+        reason, report_path = "", ""
         if i + 2 < len(lines):
-            rm = re.match(r">\s*\*\*(YES|NO)\*\*:\s*(.+)", lines[i + 2].strip())
+            detail = lines[i + 2].strip()
+            rm = re.match(r">\s*\*\*(YES|NO)\*\*:\s*(.+?)(?:\s*·\s*\[📄 report\]\((.+?)\))?$", detail)
             if rm:
                 reason = rm.group(2).strip()
+                report_path = rm.group(3) or ""
 
         jobs.append({
             "title": title.strip(), "company": company.strip(), "url": url,
             "status": status, "score": score, "fit": fit,
             "source": source, "location": location,
-            "remote": remote, "reason": reason,
+            "remote": remote, "reason": reason, "report": report_path,
         })
         i += 1
 

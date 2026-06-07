@@ -17,7 +17,7 @@ from pathlib import Path
 import yaml
 
 sys.path.insert(0, str(Path(__file__).parent))
-from sources import adzuna, arbeitnow, remoteok, remotive, weworkremotely
+from sources import adzuna, arbeitnow, remoteok, remotive, weworkremotely, ats
 
 CONFIG_FILE = "config.yml"
 PIPELINE_FILE = "pipeline.md"
@@ -210,6 +210,10 @@ def main():
         futures[pool.submit(run_source, "weworkremotely", weworkremotely.fetch_jobs,
                             config.get("wwr_categories", ["programming", "data"]),
                             max(max_age, 7))] = "weworkremotely"
+
+        ats_companies = config.get("ats_companies", [])
+        if ats_companies:
+            futures[pool.submit(run_source, "ats", ats.fetch_jobs, ats_companies)] = "ats"
 
         for future in as_completed(futures):
             all_jobs.extend(future.result())

@@ -171,3 +171,23 @@ remotive_categories:
 wwr_categories:
   - programming
   - data
+
+# ── ATS Company Scanner (career-ops style) ───────────────────────
+# Scan company career pages directly via Greenhouse, Lever, or Ashby APIs.
+# These jobs often never appear on general job boards.
+# All APIs are free and public — no auth needed.
+#
+# Auto-detects ATS from careers_url, or specify ats + slug manually:
+#   Greenhouse: boards.greenhouse.io/{slug}
+#   Lever:      jobs.lever.co/{slug}
+#   Ashby:      jobs.ashbyhq.com/{slug}
+
+ats_companies:
+  - name: "Example Company (Greenhouse)"
+    ats: "greenhouse"
+    slug: "example"
+    enabled: true
+
+  - name: "Example Company (auto-detect from URL)"
+    careers_url: "https://jobs.lever.co/example-corp"
+    enabled: true

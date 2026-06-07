@@ -5,6 +5,9 @@ pipeline.md
 scan_history.tsv
 job_cache.json
 
+# Deep evaluation reports (personal, stay local)
+reports/*.md
+
 # results.json IS committed — it powers the Vercel dashboard
 # (it contains job data but no personal credentials)
 

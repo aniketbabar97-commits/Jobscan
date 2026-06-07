@@ -147,6 +147,11 @@
                   <span x-show="job.source"
                         class="bg-gray-800 text-gray-400 text-xs px-1.5 py-0.5 rounded"
                         x-text="job.source"></span>
+                  <span x-show="job.report"
+                        class="bg-purple-950 text-purple-300 text-xs px-1.5 py-0.5 rounded"
+                        title="Deep evaluation report available locally in reports/ folder">
+                    📄 deep report
+                  </span>
                   <span x-show="job.location"
                         class="text-gray-500 text-xs"
                         x-text="'📍 ' + job.location"></span>
