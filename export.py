@@ -12,7 +12,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 PIPELINE_FILE = "pipeline.md"
-OUTPUT_FILE = "public/results.json"
+OUTPUT_FILE   = "public/results.json"
+TRACKER_FILE  = "applications.tsv"
 
 
 def parse_jobs(content: str) -> list:
@@ -65,6 +66,33 @@ def parse_jobs(content: str) -> list:
     return jobs
 
 
+def load_tracker_stats():
+    if not Path(TRACKER_FILE).exists():
+        return {}
+    statuses = {}
+    applications = []
+    with open(TRACKER_FILE) as f:
+        for line in f:
+            line = line.rstrip("\n")
+            if not line or line.startswith("#"):
+                continue
+            parts = line.split("\t")
+            while len(parts) < 7:
+                parts.append("")
+            status = parts[5]
+            statuses[status] = statuses.get(status, 0) + 1
+            applications.append({
+                "id":      parts[0],
+                "date":    parts[1],
+                "company": parts[2],
+                "role":    parts[3],
+                "score":   parts[4],
+                "status":  status,
+                "url":     parts[6],
+            })
+    return {"counts": statuses, "applications": applications}
+
+
 def main():
     if not Path(PIPELINE_FILE).exists():
         print("No pipeline.md found. Run scan.py first.")
@@ -75,6 +103,8 @@ def main():
     no_jobs = [j for j in jobs if j["fit"] == "no"]
     pending_jobs = [j for j in jobs if j["status"] == "pending"]
 
+    tracker = load_tracker_stats()
+
     output = {
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "stats": {
@@ -84,12 +114,18 @@ def main():
             "pending": len(pending_jobs),
         },
         "jobs": sorted(jobs, key=lambda j: (j["score"] or -1), reverse=True),
+        "tracker": tracker,
     }
 
     Path("public").mkdir(exist_ok=True)
     Path(OUTPUT_FILE).write_text(json.dumps(output, ensure_ascii=False, indent=2))
     print(f"Exported {len(jobs)} jobs → {OUTPUT_FILE}")
     print(f"  ✓ Yes: {len(yes_jobs)}  ⏳ Pending: {len(pending_jobs)}  ✗ No: {len(no_jobs)}")
+    if tracker.get("applications"):
+        counts = tracker.get("counts", {})
+        print(f"  Tracker: {len(tracker['applications'])} applications tracked "
+              f"({counts.get('Applied', 0)} applied, {counts.get('Interview', 0)} interviews, "
+              f"{counts.get('Offer', 0)} offers)")
     print(f"\nNow push to update your Vercel dashboard:")
     print(f"  git add {OUTPUT_FILE} && git commit -m 'Update job results' && git push")
 

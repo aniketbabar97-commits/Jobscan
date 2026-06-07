@@ -11,6 +11,10 @@ reports/*.md
 # results.json IS committed — it powers the Vercel dashboard
 # (it contains job data but no personal credentials)
 
+# Application materials (personal, stay local)
+applications/
+applications.tsv
+
 # Python bytecode
 __pycache__/
 *.py[cod]

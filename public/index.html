@@ -91,84 +91,150 @@
               : 'text-gray-400 hover:text-gray-200'"
             class="flex-1 py-1.5 px-2 rounded-lg font-medium transition-all truncate">
             <span x-text="tab.label"></span>
-            <span class="ml-1 text-xs opacity-70"
+            <span x-show="tab.key !== 'pipeline'" class="ml-1 text-xs opacity-70"
                   x-text="'(' + getTabJobs(tab.key).length + ')'"></span>
+            <span x-show="tab.key === 'pipeline'" class="ml-1 text-xs opacity-70"
+                  x-text="'(' + (tracker.applications || []).length + ')'"></span>
           </button>
         </template>
       </div>
 
-      <!-- Empty state per tab -->
-      <div x-show="currentJobs.length === 0"
-           class="text-center py-16 text-gray-500">
-        <p class="text-3xl mb-3">🗂️</p>
-        <p x-text="emptyMessage"></p>
-      </div>
+      <!-- Pipeline / Tracker tab -->
+      <div x-show="activeTab === 'pipeline'">
+        <!-- Funnel stats -->
+        <div x-show="trackerStatusKeys.length > 0" class="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-4">
+          <template x-for="s in allStatuses" :key="s.key">
+            <div x-show="(tracker.counts || {})[s.key] > 0"
+                 class="bg-gray-900 rounded-xl p-2 text-center ring-1 ring-inset"
+                 :class="s.ring">
+              <p class="text-lg font-bold" :class="s.color" x-text="(tracker.counts || {})[s.key] || 0"></p>
+              <p class="text-xs text-gray-500 mt-0.5" x-text="s.label"></p>
+            </div>
+          </template>
+        </div>
 
-      <!-- Job cards -->
-      <div class="space-y-2">
-        <template x-for="job in currentJobs" :key="job.url">
-          <div class="bg-gray-900 rounded-xl border-l-4 p-4 hover:bg-gray-800/80 transition-colors"
-               :class="{
-                 'card-yes':  job.fit === 'yes',
-                 'card-no':   job.fit === 'no',
-                 'card-pend': job.status === 'pending'
-               }">
-            <div class="flex gap-3">
-              <!-- Score badge -->
-              <div class="shrink-0 text-center w-12 mt-0.5">
-                <template x-if="job.score !== null">
-                  <div>
-                    <div class="text-lg font-bold leading-none"
-                         :class="job.fit === 'yes' ? 'text-emerald-400' : 'text-red-400'"
-                         x-text="job.score.toFixed(1)"></div>
-                    <div class="text-xs mt-0.5"
-                         :class="job.fit === 'yes' ? 'text-emerald-500' : 'text-red-500'"
-                         x-text="job.fit === 'yes' ? '✓ YES' : '✗ NO'"></div>
+        <!-- Empty state -->
+        <div x-show="(tracker.applications || []).length === 0"
+             class="text-center py-16 text-gray-500">
+          <p class="text-3xl mb-3">📋</p>
+          <p>No applications tracked yet.</p>
+          <p class="text-xs mt-2">Run <code class="bg-gray-800 px-1 rounded">python apply.py &lt;job_url&gt;</code> to generate materials and start tracking.</p>
+        </div>
+
+        <!-- Application cards -->
+        <div class="space-y-2">
+          <template x-for="app in (tracker.applications || [])" :key="app.url">
+            <div class="bg-gray-900 rounded-xl border-l-4 p-4 hover:bg-gray-800/80 transition-colors"
+                 :class="getAppBorderClass(app.status)">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <a :href="app.url" target="_blank" rel="noopener"
+                     class="font-semibold text-sm sm:text-base leading-snug hover:text-blue-300 transition-colors block">
+                    <span x-text="app.role"></span>
+                    <span class="text-gray-400 font-normal" x-text="' at ' + app.company"></span>
+                    <svg class="inline-block w-3 h-3 ml-1 opacity-50 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                  </a>
+                  <div class="flex items-center gap-2 mt-1.5">
+                    <span class="text-xs text-gray-500" x-text="app.date"></span>
+                    <span x-show="app.score" class="text-xs text-gray-500" x-text="'· score ' + app.score"></span>
                   </div>
-                </template>
-                <template x-if="job.score === null">
-                  <div class="text-blue-400 text-xs">⏳<br>eval</div>
-                </template>
-              </div>
-
-              <!-- Content -->
-              <div class="flex-1 min-w-0">
-                <a :href="job.url" target="_blank" rel="noopener"
-                   class="font-semibold text-sm sm:text-base leading-snug hover:text-blue-300 transition-colors block">
-                  <span x-text="job.title"></span>
-                  <span class="text-gray-400 font-normal" x-text="' at ' + job.company"></span>
-                  <svg class="inline-block w-3 h-3 ml-1 opacity-50 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                  </svg>
-                </a>
-
-                <!-- Tags row -->
-                <div class="flex flex-wrap items-center gap-1.5 mt-2">
-                  <span x-show="job.source"
-                        class="bg-gray-800 text-gray-400 text-xs px-1.5 py-0.5 rounded"
-                        x-text="job.source"></span>
-                  <span x-show="job.report"
-                        class="bg-purple-950 text-purple-300 text-xs px-1.5 py-0.5 rounded"
-                        title="Deep evaluation report available locally in reports/ folder">
-                    📄 deep report
-                  </span>
-                  <span x-show="job.location"
-                        class="text-gray-500 text-xs"
-                        x-text="'📍 ' + job.location"></span>
-                  <span x-show="job.remote"
-                        class="bg-blue-950 text-blue-400 text-xs px-1.5 py-0.5 rounded">
-                    🌍 remote
-                  </span>
                 </div>
-
-                <!-- AI reason -->
-                <p x-show="job.reason"
-                   class="text-xs text-gray-400 mt-2 italic leading-relaxed"
-                   x-text="job.reason"></p>
+                <div class="shrink-0">
+                  <span class="text-xs font-medium px-2 py-1 rounded-full"
+                        :class="getStatusBadgeClass(app.status)"
+                        x-text="app.status"></span>
+                </div>
               </div>
             </div>
-          </div>
-        </template>
+          </template>
+        </div>
+
+        <!-- Next step hint -->
+        <div x-show="(tracker.applications || []).length > 0"
+             class="mt-4 bg-gray-900 rounded-xl p-4 text-xs text-gray-500">
+          <p class="font-medium text-gray-400 mb-1">Update status locally:</p>
+          <code class="text-blue-400">python tracker.py update "&lt;url&gt;" Applied</code>
+          <p class="mt-1">Then re-run export.py and push to refresh this dashboard.</p>
+        </div>
+      </div>
+
+      <!-- Job tabs (yes / no / pending / all) -->
+      <div x-show="activeTab !== 'pipeline'">
+        <!-- Empty state per tab -->
+        <div x-show="currentJobs.length === 0"
+             class="text-center py-16 text-gray-500">
+          <p class="text-3xl mb-3">🗂️</p>
+          <p x-text="emptyMessage"></p>
+        </div>
+
+        <!-- Job cards -->
+        <div class="space-y-2">
+          <template x-for="job in currentJobs" :key="job.url">
+            <div class="bg-gray-900 rounded-xl border-l-4 p-4 hover:bg-gray-800/80 transition-colors"
+                 :class="{
+                   'card-yes':  job.fit === 'yes',
+                   'card-no':   job.fit === 'no',
+                   'card-pend': job.status === 'pending'
+                 }">
+              <div class="flex gap-3">
+                <!-- Score badge -->
+                <div class="shrink-0 text-center w-12 mt-0.5">
+                  <template x-if="job.score !== null">
+                    <div>
+                      <div class="text-lg font-bold leading-none"
+                           :class="job.fit === 'yes' ? 'text-emerald-400' : 'text-red-400'"
+                           x-text="job.score.toFixed(1)"></div>
+                      <div class="text-xs mt-0.5"
+                           :class="job.fit === 'yes' ? 'text-emerald-500' : 'text-red-500'"
+                           x-text="job.fit === 'yes' ? '✓ YES' : '✗ NO'"></div>
+                    </div>
+                  </template>
+                  <template x-if="job.score === null">
+                    <div class="text-blue-400 text-xs">⏳<br>eval</div>
+                  </template>
+                </div>
+
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                  <a :href="job.url" target="_blank" rel="noopener"
+                     class="font-semibold text-sm sm:text-base leading-snug hover:text-blue-300 transition-colors block">
+                    <span x-text="job.title"></span>
+                    <span class="text-gray-400 font-normal" x-text="' at ' + job.company"></span>
+                    <svg class="inline-block w-3 h-3 ml-1 opacity-50 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                  </a>
+
+                  <!-- Tags row -->
+                  <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                    <span x-show="job.source"
+                          class="bg-gray-800 text-gray-400 text-xs px-1.5 py-0.5 rounded"
+                          x-text="job.source"></span>
+                    <span x-show="job.report"
+                          class="bg-purple-950 text-purple-300 text-xs px-1.5 py-0.5 rounded"
+                          title="Deep evaluation report available locally in reports/ folder">
+                      📄 deep report
+                    </span>
+                    <span x-show="job.location"
+                          class="text-gray-500 text-xs"
+                          x-text="'📍 ' + job.location"></span>
+                    <span x-show="job.remote"
+                          class="bg-blue-950 text-blue-400 text-xs px-1.5 py-0.5 rounded">
+                      🌍 remote
+                    </span>
+                  </div>
+
+                  <!-- AI reason -->
+                  <p x-show="job.reason"
+                     class="text-xs text-gray-400 mt-2 italic leading-relaxed"
+                     x-text="job.reason"></p>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
       </div>
 
     </main>
@@ -186,29 +252,70 @@
         error: false,
         stats: {},
         jobs: [],
+        tracker: {},
         activeTab: 'yes',
         updatedAt: '',
 
         tabs: [
-          { key: 'yes',     label: '✓ Good Fits' },
-          { key: 'pending', label: '⏳ Pending'   },
-          { key: 'no',      label: '✗ No Fits'   },
-          { key: 'all',     label: 'All'           },
+          { key: 'yes',      label: '✓ Good Fits' },
+          { key: 'pending',  label: '⏳ Pending'   },
+          { key: 'no',       label: '✗ No Fits'   },
+          { key: 'all',      label: 'All'          },
+          { key: 'pipeline', label: '📋 Applied'   },
         ],
+
+        allStatuses: [
+          { key: 'Evaluated', label: 'Evaluated', color: 'text-blue-400',    ring: 'ring-blue-500/30'    },
+          { key: 'Applied',   label: 'Applied',   color: 'text-cyan-400',    ring: 'ring-cyan-500/30'    },
+          { key: 'Responded', label: 'Responded', color: 'text-yellow-400',  ring: 'ring-yellow-500/30'  },
+          { key: 'Interview', label: 'Interview', color: 'text-purple-400',  ring: 'ring-purple-500/30'  },
+          { key: 'Offer',     label: 'Offer 🎉',  color: 'text-emerald-400', ring: 'ring-emerald-500/40' },
+          { key: 'Rejected',  label: 'Rejected',  color: 'text-red-400',     ring: 'ring-red-500/30'     },
+        ],
+
+        get trackerStatusKeys() {
+          return Object.keys(this.tracker.counts || {});
+        },
+
+        getAppBorderClass(status) {
+          const map = {
+            'Evaluated': 'border-blue-500',
+            'Applied':   'border-cyan-500',
+            'Responded': 'border-yellow-500',
+            'Interview': 'border-purple-500',
+            'Offer':     'border-emerald-500',
+            'Rejected':  'border-red-500',
+            'Skipped':   'border-gray-600',
+          };
+          return map[status] || 'border-gray-700';
+        },
+
+        getStatusBadgeClass(status) {
+          const map = {
+            'Evaluated': 'bg-blue-950 text-blue-300',
+            'Applied':   'bg-cyan-950 text-cyan-300',
+            'Responded': 'bg-yellow-950 text-yellow-300',
+            'Interview': 'bg-purple-950 text-purple-300',
+            'Offer':     'bg-emerald-950 text-emerald-300',
+            'Rejected':  'bg-red-950 text-red-300',
+            'Skipped':   'bg-gray-800 text-gray-400',
+          };
+          return map[status] || 'bg-gray-800 text-gray-400';
+        },
 
         async load() {
           try {
             const resp = await fetch('results.json?t=' + Date.now());
             if (!resp.ok) throw new Error('not found');
             const data = await resp.json();
-            this.jobs = data.jobs || [];
-            this.stats = data.stats || {};
+            this.jobs    = data.jobs || [];
+            this.stats   = data.stats || {};
+            this.tracker = data.tracker || {};
             const d = new Date(data.updated_at);
             this.updatedAt = isNaN(d) ? '—' : d.toLocaleString(undefined, {
               month: 'short', day: 'numeric',
               hour: '2-digit', minute: '2-digit'
             });
-            // Default to pending tab if nothing is evaluated yet
             if (this.getTabJobs('yes').length === 0 && this.getTabJobs('pending').length > 0) {
               this.activeTab = 'pending';
             }
@@ -222,6 +329,7 @@
           if (key === 'yes')     return this.jobs.filter(j => j.fit === 'yes').sort((a,b) => (b.score||0)-(a.score||0));
           if (key === 'no')      return this.jobs.filter(j => j.fit === 'no').sort((a,b) => (b.score||0)-(a.score||0));
           if (key === 'pending') return this.jobs.filter(j => j.status === 'pending');
+          if (key === 'pipeline') return [];
           return [...this.jobs].sort((a,b) => (b.score||0)-(a.score||0));
         },
 
