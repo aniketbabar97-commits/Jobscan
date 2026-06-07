@@ -1,5 +1,11 @@
 {
-  "updated_at": "2025-06-07T00:00:00Z",
-  "stats": { "total": 0, "yes": 0, "no": 0, "pending": 0 },
-  "jobs": []
+  "updated_at": "2026-06-07T16:41:58.485066+00:00",
+  "stats": {
+    "total": 0,
+    "yes": 0,
+    "no": 0,
+    "pending": 0
+  },
+  "jobs": [],
+  "tracker": {}
 }
