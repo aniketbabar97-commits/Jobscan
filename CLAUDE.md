@@ -1,22 +1,22 @@
 # Jobscan Germany — Claude Code Commands
 
-Job search automation for Germany + remote roles.
-Pulls ~1000+ listings, filters aggressively, scores remainder against your CV.
+Job search automation for Germany + remote SAP Commerce / Java Developer roles.
+Pulls 500–2000 listings, filters aggressively, scores remainder against Kranti's CV.
 
 ## Setup (first time)
 
 ```bash
 pip install -r requirements.txt
-cp config.example.yml config.yml   # then edit config.yml
-# Create cv.md with your resume in markdown format
+# Edit config.yml and add your GROQ_API_KEY (free at console.groq.com)
+# cv.md is already created from your uploaded CV
 ```
 
 ## Daily Workflow
 
 ```
-Step 1: python scan.py     — fetch + filter jobs (no Claude tokens used)
-Step 2: python eval.py     — score pending jobs with Claude
-Step 3: open pipeline.md   — review your shortlist
+Step 1: python scan.py           — fetch + filter jobs (free, no AI tokens)
+Step 2: python eval.py           — score pending jobs with Groq LLM (free)
+Step 3: streamlit run dashboard.py  — visual review in browser
 ```
 
 ## Commands
@@ -27,68 +27,65 @@ python scan.py
 ```
 Pulls jobs from Adzuna DE, Arbeitnow, RemoteOK, Remotive, WeWorkRemotely.
 Applies title/location/seniority/domain filters. Deduplicates against history.
-Writes new jobs to pipeline.md and appends to scan_history.tsv.
+Writes new jobs to `pipeline.md`, appends to `scan_history.tsv`.
 
 ### /eval
 ```bash
 python eval.py
+python eval.py --dry-run      # preview pending jobs
+python eval.py --limit 20     # evaluate only first 20
 ```
-Reads pending `- [ ]` entries from pipeline.md.
-Fetches each job page (uses job_cache.json when available to avoid re-fetching).
-Calls Claude once per job with your CV to get a 0–5 fit score.
+Scores each pending job against cv.md using Groq (llama-3.3-70b-versatile, free).
 Updates pipeline.md in-place with scores and Yes/No decisions.
 
-Useful flags:
+### /dashboard
 ```bash
-python eval.py --dry-run      # list pending jobs without calling Claude
-python eval.py --limit 20     # evaluate only the first 20 pending jobs
+streamlit run dashboard.py
+```
+Opens the web dashboard at http://localhost:8501.
+- Visual job cards color-coded by fit score
+- One-click Scan and Evaluate buttons
+- Tabs: Good Fits / Pending / No Fits / All
+- Auto-refresh toggle (30s)
+- Filter by source and remote
+
+**To share the dashboard publicly:**
+
+Option A — ngrok (instant, temporary URL):
+```bash
+pip install pyngrok
+ngrok http 8501
+# Copy the https://xxxx.ngrok.io URL and share it
 ```
 
-### /setup
-Check that setup is complete:
-1. `config.yml` exists and has API keys filled in
-2. `cv.md` exists with resume content
-3. `pip install -r requirements.txt` has been run
-4. (Optional) Get free Adzuna API key at developer.adzuna.com
+Option B — Streamlit Community Cloud (permanent free URL):
+1. Push this repo to GitHub (public or private)
+2. Go to share.streamlit.io
+3. Deploy `dashboard.py` — get a permanent shareable link
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `config.yml` | Your settings + API keys (gitignored) |
-| `cv.md` | Your CV in markdown format (gitignored) |
-| `pipeline.md` | Job inbox — review this after eval (gitignored) |
-| `scan_history.tsv` | Dedup log of all seen jobs (gitignored) |
-| `job_cache.json` | Cached job descriptions (gitignored) |
+| `config.yml` | Settings + API keys (gitignored) |
+| `cv.md` | Kranti's CV in markdown (gitignored) |
+| `pipeline.md` | Job inbox with scores (gitignored) |
+| `scan_history.tsv` | Dedup log (gitignored) |
+| `job_cache.json` | Cached descriptions (gitignored) |
 
 ## Job Sources
 
 | Source | Region | Auth |
 |--------|--------|------|
-| Adzuna | Germany + remote | Free API key |
+| Adzuna | Germany + remote | Free key (configured) |
 | Arbeitnow | Germany / Europe | None |
 | RemoteOK | Global remote | None |
 | Remotive | Global remote | None |
 | WeWorkRemotely | Global remote | None |
 
-## Pipeline Format
-
-```
-- [ ] **[Job Title at Company](url)** `remote`
-  `source` · Location · Nd old · YYYY-MM-DD
-```
-
-After eval.py runs:
-```
-- [x] **[Job Title at Company](url)** `remote` — **4.2 ✓**
-  `source` · Location · Nd old · YYYY-MM-DD
-  > **YES**: Strong Python/ML match, remote-friendly, EU timezone preferred
-```
-
-Manually mark jobs you've applied to with `- [~]` to track progress.
-
 ## Cost Estimate
 
-Using `claude-haiku-4-5-20251001` (default):
-- ~50 jobs to evaluate after filtering → ~$0.05–0.10 per scan run
-- Switch to `claude-sonnet-4-6` in config.yml for better reasoning (~10× more)
+Using Groq free tier (llama-3.3-70b-versatile):
+- **$0** — Groq's free tier includes 14,400 requests/day
+- No credit card required
+- Just need a free account at console.groq.com

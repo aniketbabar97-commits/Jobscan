@@ -9,12 +9,13 @@ adzuna:
   app_id: ""    # Free tier at developer.adzuna.com
   app_key: ""   # ~250 API calls/day included
 
-anthropic:
-  api_key: ""   # Or set ANTHROPIC_API_KEY environment variable
-  # Recommended models (cheapest first):
-  #   claude-haiku-4-5-20251001  — fast, cheap (~$0.001/job eval), good enough
-  #   claude-sonnet-4-6          — smarter, ~10x more expensive, better reasoning
-  model: "claude-haiku-4-5-20251001"
+groq:
+  api_key: ""   # Free at https://console.groq.com — no billing required
+  # Or set GROQ_API_KEY environment variable
+  # Models (all free on Groq):
+  #   llama-3.3-70b-versatile  — best quality (recommended)
+  #   llama3-8b-8192           — fastest
+  model: "llama-3.3-70b-versatile"
 
 # ── Scan Settings ────────────────────────────────────────────────
 max_age_days: 5       # Ignore jobs posted more than N days ago
